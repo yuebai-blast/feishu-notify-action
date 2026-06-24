@@ -1,0 +1,110 @@
+name: 'Feishu Pipeline Notify'
+description: '将 GitHub Actions 流水线结果以飞书自建应用私聊卡片推送给指定用户（成功/失败、含失败位置、commit、起止时间与耗时）'
+author: 'yuebai-blast'
+
+branding:
+  icon: 'send'
+  color: 'blue'
+
+inputs:
+  # —— 机密：由调用方 secrets 传入 ——
+  app_id:
+    description: '飞书自建应用 App ID'
+    required: true
+  app_secret:
+    description: '飞书自建应用 App Secret'
+    required: true
+  receive_id:
+    description: '接收人 ID（默认按 open_id）'
+    required: true
+  receive_id_type:
+    description: '接收人 ID 类型：open_id / user_id / union_id / email / chat_id'
+    required: false
+    default: 'open_id'
+
+  # —— 流水线上下文：一般直接接 github.event.workflow_run.* ——
+  status:
+    description: '运行结论（workflow_run.conclusion）：success / failure / cancelled ...'
+    required: true
+  workflow_name:
+    description: '流水线名称'
+    required: false
+    default: ''
+  repo:
+    description: '仓库全名 owner/repo'
+    required: false
+    default: ''
+  branch:
+    description: '分支 / Tag'
+    required: false
+    default: ''
+  event:
+    description: '触发事件（push / pull_request ...）'
+    required: false
+    default: ''
+  actor:
+    description: '触发者登录名'
+    required: false
+    default: ''
+  run_url:
+    description: '运行详情链接（html_url）'
+    required: false
+    default: ''
+  run_id:
+    description: '运行 ID（用于失败时查 job/step 名）'
+    required: false
+    default: ''
+  commit_sha:
+    description: '触发提交的 SHA'
+    required: false
+    default: ''
+  commit_message:
+    description: '触发提交的信息（head_commit.message）'
+    required: false
+    default: ''
+  commit_author:
+    description: '提交作者'
+    required: false
+    default: ''
+  run_started_at:
+    description: '开始时间（run_started_at，ISO8601）'
+    required: false
+    default: ''
+  run_updated_at:
+    description: '结束时间（updated_at，ISO8601）'
+    required: false
+    default: ''
+  github_token:
+    description: '用于失败时查询 jobs API 拿失败位置；传 ${{ github.token }} 即可，需 actions:read 权限'
+    required: false
+    default: ''
+  timezone:
+    description: '时间显示时区（IANA 名，如 Asia/Shanghai / America/Los_Angeles / UTC）'
+    required: false
+    default: 'Asia/Shanghai'
+
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: python3 "$GITHUB_ACTION_PATH/feishu_notify.py"
+      env:
+        FEISHU_APP_ID: ${{ inputs.app_id }}
+        FEISHU_APP_SECRET: ${{ inputs.app_secret }}
+        FEISHU_RECEIVE_ID: ${{ inputs.receive_id }}
+        FEISHU_RECEIVE_ID_TYPE: ${{ inputs.receive_id_type }}
+        STATUS: ${{ inputs.status }}
+        WORKFLOW_NAME: ${{ inputs.workflow_name }}
+        REPO: ${{ inputs.repo }}
+        BRANCH: ${{ inputs.branch }}
+        EVENT: ${{ inputs.event }}
+        ACTOR: ${{ inputs.actor }}
+        RUN_URL: ${{ inputs.run_url }}
+        RUN_ID: ${{ inputs.run_id }}
+        COMMIT_SHA: ${{ inputs.commit_sha }}
+        COMMIT_MESSAGE: ${{ inputs.commit_message }}
+        COMMIT_AUTHOR: ${{ inputs.commit_author }}
+        RUN_STARTED_AT: ${{ inputs.run_started_at }}
+        RUN_UPDATED_AT: ${{ inputs.run_updated_at }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        TIMEZONE: ${{ inputs.timezone }}
