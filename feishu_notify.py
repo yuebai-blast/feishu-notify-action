@@ -136,10 +136,11 @@ def main() -> int:
     ok = status == "success"
     template = "green" if ok else "red"
     icon = "✅" if ok else "❌"
-    title = f"{icon} {name} · {ZH_STATUS.get(status, status or '结束')}"
+    # 标题直接带上 repo 与流水线名，一眼定位是哪个仓库的哪条 CI
+    scope = " · ".join(p for p in (repo, name) if p)
+    title = f"{icon} {scope} · {ZH_STATUS.get(status, status or '结束')}"
 
     lines = [
-        f"**仓库**：{repo}",
         f"**分支 / Tag**：{branch}　**触发**：{event} · by {actor}",
         f"**提交**：`{sha}`" + (f" — {author}" if author else ""),
     ]
