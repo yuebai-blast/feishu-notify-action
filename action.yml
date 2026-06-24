@@ -75,7 +75,7 @@ inputs:
     required: false
     default: ''
   github_token:
-    description: '用于失败时查询 jobs API 拿失败位置；传 ${{ github.token }} 即可，需 actions:read 权限'
+    description: '用于失败时查询 jobs API 拿失败位置；调用方传 github.token 即可，需 actions:read 权限'
     required: false
     default: ''
   timezone:
